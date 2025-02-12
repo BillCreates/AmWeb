@@ -6,13 +6,19 @@ Startet einen Chromebrowser mit dem **Default**-Profil (damit der Local Storage 
 Dort wird sich mit dem angegebenen Passwort angemeldet. 
 Da das Encryptionpasswortfeld nicht leer sein darf, wird hier im Moment `1234` eingegeben.
 Unterstützung für ein indivuduelles Encryptionpasswort (welches nicht `""` ist) gibt es zur Zeit nicht.  
-Danach wird WAIT_TIME Millisekunden (standardmäßig 500ms) gewartet und dann überprüft, ob der Login erfolgreich war.
+Danach wird `WAIT_TIME` Millisekunden (standardmäßig 500ms) gewartet und dann überprüft, ob der Login erfolgreich war.
 
 ## Installation
-Zunächst das Repository klonen, dann folgende Befehle ausführen:
 ```bash
-.venv/bin/activate
-pip install -r requirements.txt
+git clone https://github.com/BillCreates/AmWeb.git # Klont das Repository
+python -m venv .venv                               # Erstellt ein virtuelles Environment
+.venv/bin/activate                                 # Aktiviert das virtuelle Environment
+pip install -r requirements.txt                    # Installiert die benötigten Python-Module
+```
+
+**Das Script ausführbar machen**:
+```bash
+chmod u+x amweb.py
 ```
 
 ## Benutzung
