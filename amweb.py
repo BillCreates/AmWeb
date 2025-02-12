@@ -54,7 +54,7 @@ class Script:
             print(f"[{colored("*", "green")}] {msg}")
 
     def run(self) -> bool:
-        print("Tragen Sie die URL zum Webmonitor ein: ", end="")
+        print("Tragen Sie die Url zum Webmonitor ein: ", end="")
         url = input()
         # save the url to a file, so it can be read by the kioskmode script
         with open("url.txt", "w") as file:
@@ -80,11 +80,11 @@ class Script:
 
         self.progress("Chrome erfolgreich gestartet.")
 
-        self.progress(f"Öffne URL '{url}'")
+        self.progress(f"Öffne Url '{url}'")
         try:
             driver.get(url)
         except (InvalidArgumentException, WebDriverException) as e:
-            self.error("Ungültige URL. Bitte überprüfen Sie die URL.")
+            self.error("Ungültige Url. Bitte überprüfen Sie die Url.")
             self.verbose_error(e)
             driver.quit()
             return False
@@ -96,7 +96,7 @@ class Script:
             password_input.send_keys(password)
             encrypt_pw_input.send_keys("1234")
         except NoSuchElementException as e:
-            self.error("Passwortfelder nicht gefunden. Bitte überprüfen Sie die URL und ob Sie nicht schon eingelogged sind.")
+            self.error("Passwortfelder nicht gefunden. Bitte überprüfen Sie die Url und ob Sie nicht schon eingelogged sind.")
             self.verbose_error(e)
             driver.quit()
             return False
@@ -110,7 +110,7 @@ class Script:
             submit_button = driver.find_element(By.ID, "submit")
             submit_button.click()
         except NoSuchElementException as e:
-            self.error("Log-In Knopf nicht gefunden. Bitte überprüfen Sie die URL und ob Sie nicht schon eingelogged sind.")
+            self.error("Log-In Knopf nicht gefunden. Bitte überprüfen Sie die Url und ob Sie nicht schon eingelogged sind.")
             self.verbose_error(e)
             driver.quit()
             return False
