@@ -53,9 +53,12 @@ class Script:
         if not self.quiet or self.verbose:
             print(f"[{colored("*", "green")}] {msg}")
 
-    def run(self):
+    def run(self) -> bool:
         print("Tragen Sie die URL zum Webmonitor ein: ", end="")
         url = input()
+        # save the url to a file, so it can be read by the kioskmode script
+        with open("url.txt", "w") as file:
+            file.write(url)
         print("Geben Sie das Passwort für den Webmonitor ein: ", end="")
         password = input()
 
@@ -65,7 +68,7 @@ class Script:
         # 0 = success, 1 = no process found, 2 = invalid options, 3 = internal error
         if output.returncode == 2 or output.returncode == 3:
             self.error(f"Chrome konnte nicht geschlossen werden: pkill return code {output.returncode}.")
-            return
+            return False
         self.progress("Chrome Instanzen erfolgreich geschlossen.")
 
         try:
@@ -73,7 +76,7 @@ class Script:
         except SessionNotCreatedException as e:
             self.error("Chrome konnte nicht gestartet werden.")
             self.verbose_error(e)
-            return
+            return False
 
         self.progress("Chrome erfolgreich gestartet.")
 
@@ -84,7 +87,7 @@ class Script:
             self.error("Ungültige URL. Bitte überprüfen Sie die URL.")
             self.verbose_error(e)
             driver.quit()
-            return
+            return False
         self.progress(f"'{driver.title}' erfolgreich aufgerufen.")
 
         try:
@@ -96,12 +99,12 @@ class Script:
             self.error("Passwortfelder nicht gefunden. Bitte überprüfen Sie die URL und ob Sie nicht schon eingelogged sind.")
             self.verbose_error(e)
             driver.quit()
-            return
+            return False
         except Exception as e:
             self.error("Unbekannter Fehler.")
             self.verbose_error(e)
             driver.quit()
-            return
+            return False
 
         try:
             submit_button = driver.find_element(By.ID, "submit")
@@ -110,12 +113,12 @@ class Script:
             self.error("Log-In Knopf nicht gefunden. Bitte überprüfen Sie die URL und ob Sie nicht schon eingelogged sind.")
             self.verbose_error(e)
             driver.quit()
-            return
+            return False
         except ElementClickInterceptedException as e:
             self.error("Log-In Knopf konnte nicht gedrückt werden.")
             self.verbose_error(e)
             driver.quit()
-            return
+            return False
 
         time.sleep(self.wait_time)
 
@@ -123,13 +126,14 @@ class Script:
             driver.find_element(By.ID, "authPassword")
             self.error("Falsches Passwort!")
             driver.quit()
-            return
+            return False
         except NoSuchElementException:
             pass
 
         self.progress("Login erfolgreich!")
 
         driver.quit()
+        return True
 
 
 if __name__ == "__main__":
@@ -143,8 +147,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args(sys.argv[1:])
 
-    args_dict = vars(args)
-    if args_dict.get("-h") or args_dict.get("--help"):
-        parser.print_help()
+    if Script(vars(args)).run():
+        sys.exit(0)
     else:
-        Script(args_dict).run()
+        sys.exit(1)
