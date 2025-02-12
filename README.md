@@ -1,36 +1,40 @@
-# AMweb
-Script um den Alarmmonitor automatisch auf dem Raspberry Pi zu einzurichten.
-
-## Funktionsweise
-Startet einen Chromebrowser mit dem **Default**-Profil (damit der Local Storage bestehen bleibt) im headless-mode und navigiert auf die angegebene AMweb-Seite.  
-Dort wird sich mit dem angegebenen Passwort angemeldet. 
-Da das Encryptionpasswortfeld nicht leer sein darf, wird hier im Moment `1234` eingegeben.
-Unterstützung für ein indivuduelles Encryptionpasswort (welches nicht `""` ist) gibt es zur Zeit nicht.  
-Danach wird `WAIT_TIME` Millisekunden (standardmäßig 500ms) gewartet und dann überprüft, ob der Login erfolgreich war.
+# AMweb Setup
+Scripte um den Alarmmonitor automatisch auf dem Raspberry Pi zu einzurichten und immer automatisch im Chrome Kioskmodus zu starten.
 
 ## Installation
 ```bash
 git clone https://github.com/BillCreates/AmWeb.git # Klont das Repository
-python -m venv .venv                               # Erstellt ein virtuelles Environment
+python -m venv .venv                               # Erstellt ein virtuelles Environment in .venv/
+chmod u+x .venv/bin/activate                       # Macht das activate-Script ausführbar
 .venv/bin/activate                                 # Aktiviert das virtuelle Environment
 pip install -r requirements.txt                    # Installiert die benötigten Python-Module
-```
-
-**Das Script ausführbar machen**:
-```bash
-chmod u+x amweb.py
+chmod u+x amweb_setup.sh                           # Macht das Setup-Script ausführbar
 ```
 
 ## Benutzung
+```bash
+./amweb_setup.sh
+```
+
+## AMweb Login
+Startet einen Chromebrowser mit dem **Default**-Profil (damit der Local Storage bestehen bleibt) im headless-mode und navigiert auf die angegebene AMweb-Seite.  
+Dort wird sich mit dem angegebenen Passwort angemeldet.
+Da das Encryptionpasswortfeld nicht leer sein darf, wird hier im Moment `1234` eingegeben.
+Unterstützung für ein indivuduelles Encryptionpasswort (welches nicht `""` ist) gibt es zurzeit nicht.  
+Danach wird `WAIT_TIME` Millisekunden (standardmäßig 500ms) gewartet und dann überprüft, ob der Login erfolgreich war.
+
+Zusätzlich wird die eingegebene Url in der Datei `url.txt` gespeichert, die dann von `kioskmodus.py` eingelesen wird.
+
+### Benutzung
 
 ```bash
  ./amweb.py [-h] [-v] [-q] [--no-headless] [--debug-chrome-path] [--wait-time WAIT_TIME]
 ```
 
-### Optionen
+#### Optionen
 - **`-h`, `--help`**: Zeigt die Hilfe an.
 
-- **`-v`, `--verbose`**: Zeigt zusätzliche Infos bei Fehlern an (Stacktraces).
+- **`-v`, `--verbose`**: Zeigt zusätzliche Informationen bei Fehlern an (Error/Stacktraces).
 
 - **`-q`, `--quiet`**: Unterdrückt alle Ausgaben, bis auf intearktive Eingaben und Error.
 
@@ -41,3 +45,19 @@ chmod u+x amweb.py
 
 - **`--wait-time WAIT_TIME`**: Gibt die Zeit in Millisekunden an, die nach Drücken des Login-Knopfes gewartet werden soll, bevor überprüft wird, ob der Login erfolgreich war.
   Standardmäßig sind es 500ms, bei langsamerer Internetverbindung kann dieser Wert erhöht werden.
+
+## Kioskmodus
+Richtet die Config-Dateien auf dem Raspberry Pi so ein, dass der Alarmmonitor immer im Chrome Kioskmodus gestartet wird.
+
+Dafür wird die Url aus der Datei `url.txt` eingelesen. Die Url kann auch als Argument übergeben werden.
+
+### Benutzung
+
+```bash
+ ./kioskmodus.py [-h] [-v] [--no-safe] [url]
+```
+
+#### Optionen
+- **`-h`, `--help`**: Zeigt die Hilfe an.
+- **`-v`, `--verbose`**: Zeigt zusätzliche Informationen bei Fehlern an (Error/Stacktraces).
+- **`--no-safe`**: Wenn die Url als Argument übergeben wird, wird standardmäßig url.txt damit überschrieben. Mit dieser Option wird dies deaktiviert.
