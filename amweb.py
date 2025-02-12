@@ -133,8 +133,8 @@ class Script:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog="AMweb Setup", description="Automatischer Login für den Webmonitor.")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Verbosity Flag. Zeigt zusätzlich Infos bei Fehlern an (z.B. Stacktrace).")
+    parser = argparse.ArgumentParser(prog="./amweb.py", description="Automatischer Login für den Webmonitor.")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Zeigt zusätzlich Infos bei Fehlern an (z.B. Stacktrace).")
     parser.add_argument("-q", "--quiet", action="store_true", help="Unterdrückt alle Ausgaben, bis auf Fehler und interaktive Eingaben.")
     parser.add_argument("--no-headless", action="store_true", help="Startet Chrome nicht im Headless Modus. Nützlich für Debugging.")
     parser.add_argument("--debug-chrome-path", action="store_true", help="Benutzt das Chrome Profil von Selenium. Nützlich für Debugging.")
