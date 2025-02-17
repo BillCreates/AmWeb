@@ -59,4 +59,4 @@ Dafür wird die Url aus der Datei `url.txt` eingelesen. Die Url kann auch als Ar
 #### Optionen
 - **`-h`, `--help`**: Zeigt die Hilfe an.
 - **`-v`, `--verbose`**: Zeigt zusätzliche Informationen bei Fehlern an (Error/Stacktraces).
-- **`--no-safe`**: Wenn die Url als Argument übergeben wird, wird standardmäßig url.txt damit überschrieben. Mit dieser Option wird dies deaktiviert.
+- **`--no-safe`**: Wenn die Url als Argument übergeben wird, wird standardmäßig `url.txt` damit überschrieben. Mit dieser Option wird dies deaktiviert.
