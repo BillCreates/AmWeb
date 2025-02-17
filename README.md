@@ -5,8 +5,7 @@ Scripte um den Alarmmonitor automatisch auf dem Raspberry Pi zu einzurichten und
 ```bash
 git clone https://github.com/BillCreates/AmWeb.git # Klont das Repository
 python -m venv .venv                               # Erstellt ein virtuelles Environment in .venv/
-chmod u+x .venv/bin/activate                       # Macht das activate-Script ausführbar
-.venv/bin/activate                                 # Aktiviert das virtuelle Environment
+source .venv/bin/activate                          # Aktiviert das virtuelle Environment
 pip install -r requirements.txt                    # Installiert die benötigten Python-Module
 chmod u+x amweb_setup.sh                           # Macht das Setup-Script ausführbar
 ```
