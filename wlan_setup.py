@@ -2,6 +2,8 @@ import subprocess
 import sys
 import re
 import argparse
+import time
+
 from colored import red, green, magenta
 
 def progress(msg, quiet):
@@ -41,7 +43,7 @@ def add_connection(ssid, password, verbose, quiet):
         verbose_error(f"return code: {output.returncode}; stderr: {output.stderr.decode()}", verbose)
         return
 
-    progress(f"Netzwerk '{ssid}' erfolgreich hinzugefügt, starte jetzt neu...", quiet)
+    progress(f"Netzwerk '{ssid}' erfolgreich hinzugefügt!", quiet)
 
 def interactive(args):
     verbose = args.get("verbose", False)
@@ -92,4 +94,9 @@ if __name__ == "__main__":
     # reboot the system:
     # this closes the ssh connection instead of just hanging
     # and then automatically connects to the new network
+    for i in range(5, -1, -1):
+        print(f"Der Raspberry Pi wird in {i}s neugestartet...\r", end="")
+        time.sleep(1)
+
+    progress("sudo reboot", args.quiet)
     subprocess.run(["sudo", "reboot"])
