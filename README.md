@@ -5,8 +5,7 @@ Scripte um den Alarmmonitor automatisch auf dem Raspberry Pi zu einzurichten und
 ```bash
 git clone https://github.com/BillCreates/AmWeb.git # Klont das Repository
 python -m venv .venv                               # Erstellt ein virtuelles Environment in .venv/
-chmod u+x .venv/bin/activate                       # Macht das activate-Script ausführbar
-.venv/bin/activate                                 # Aktiviert das virtuelle Environment
+source .venv/bin/activate                          # Aktiviert das virtuelle Environment
 pip install -r requirements.txt                    # Installiert die benötigten Python-Module
 chmod u+x amweb_setup.sh                           # Macht das Setup-Script ausführbar
 ```
@@ -60,4 +59,4 @@ Dafür wird die Url aus der Datei `url.txt` eingelesen. Die Url kann auch als Ar
 #### Optionen
 - **`-h`, `--help`**: Zeigt die Hilfe an.
 - **`-v`, `--verbose`**: Zeigt zusätzliche Informationen bei Fehlern an (Error/Stacktraces).
-- **`--no-safe`**: Wenn die Url als Argument übergeben wird, wird standardmäßig url.txt damit überschrieben. Mit dieser Option wird dies deaktiviert.
+- **`--no-safe`**: Wenn die Url als Argument übergeben wird, wird standardmäßig `url.txt` damit überschrieben. Mit dieser Option wird dies deaktiviert.
