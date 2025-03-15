@@ -7,7 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common import NoSuchElementException, SessionNotCreatedException, InvalidArgumentException, \
     WebDriverException, ElementClickInterceptedException
-from termcolor import colored
+from colored import red, green, magenta
 import time
 
 
@@ -39,19 +39,19 @@ class Script:
 
     def verbose_error(self, msg):
         if self.verbose:
-            print(f"{colored(msg, 'magenta')}")
+            print(f"{magenta(msg)}")
 
     def verbose_progress(self, msg):
         if self.verbose:
-            print(f"[{colored('*', 'green')}] {msg}")
+            print(f"[{green('*')}] {msg}")
 
     @staticmethod
     def error(msg):
-        print(f"[{colored("*", "red")}] {colored(msg, "red")}")
+        print(f"[{red('*')}] {red(msg)}")
 
     def progress(self, msg):
         if not self.quiet or self.verbose:
-            print(f"[{colored("*", "green")}] {msg}")
+            print(f"[{green('*')}] {msg}")
 
     def run(self) -> bool:
         print("Tragen Sie die Url zum Webmonitor ein: ", end="")

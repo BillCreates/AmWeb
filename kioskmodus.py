@@ -1,21 +1,21 @@
 #!.venv/bin/python3
 import argparse
 import sys
-from termcolor import colored
+from colored import red, green, magenta
 
 
 def verbose_progress(msg, verbose):
     if verbose:
-        print(f"[{colored('*', 'green')}] {msg}")
+        print(f"[{green('*')}] {msg}")
 
 
 def error(msg):
-    print(f"[{colored("*", "red")}] {colored(msg, "red")}")
+    print(f"[{red('*')}] {red(msg)}")
 
 
 def verbose_error(msg, verbose):
     if verbose:
-        print(f"{colored(msg, 'magenta')}")
+        print(f"{magenta(msg)}")
 
 
 def run(args):
