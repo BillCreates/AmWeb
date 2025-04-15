@@ -126,13 +126,3 @@ if __name__ == "__main__":
 
     if not status:
         sys.exit(1)
-
-    # reboot the system:
-    # this closes the ssh connection instead of just hanging
-    # and then automatically connects to the new network
-    for i in range(5, -1, -1):
-        print(f"Der Raspberry Pi wird in {i}s neugestartet...\r", end="")
-        time.sleep(1)
-
-    progress("\nsudo reboot", args.quiet)
-    subprocess.run(["sudo", "reboot"])
