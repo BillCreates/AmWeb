@@ -61,7 +61,7 @@ class Script:
         print("Geben Sie das Passwort für den Webmonitor ein: ", end="")
         password = input()
 
-        kill_command = ["pkill", "-i", "chrome"] # TODO command auf linux testen
+        kill_command = ["pkill", "-i", "chromium"]
         self.progress(f"Schließen aller Chrome Instanzen ({' '.join(kill_command)}).")
         output = subprocess.run(kill_command, capture_output=True)
         # 0 = success, 1 = no process found, 2 = invalid options, 3 = internal error
