@@ -26,8 +26,8 @@ def add_connection(ssid, password, verbose, quiet) -> bool:
         "connection", "add",            # add a new connection
         "type", "wifi",                 # of type wifi
         "ifname", "wlan0",              # on the wlan0 interface
-        "con-name", f"'{ssid}'",        # with the name of the ssid
-        "ssid", f"'{ssid}'",            # and the ssid
+        "con-name", ssid,          # with the name of the ssid
+        "ssid", ssid,              # and the ssid
         "wifi-sec.key-mgmt", "wpa-psk", # with wpa-psk key management
         "wifi-sec.psk", password        # and the password
     ], capture_output=True)
@@ -40,7 +40,7 @@ def add_connection(ssid, password, verbose, quiet) -> bool:
     # should autoconnect by default, but just in case
     output = subprocess.run([
         "sudo", "nmcli",
-        "c", "modify", f"'{ssid}'",
+        "c", "modify", ssid,
         "connection.autoconnect", "yes"
     ], capture_output=True)
     if output.returncode != 0:
