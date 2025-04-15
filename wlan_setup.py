@@ -19,7 +19,7 @@ def verbose_error(msg, verbose):
     if verbose:
         print(f"{magenta(msg)}")
 
-def add_connection(ssid, password, verbose, quiet) -> bool:
+def add_connection(ssid: str, password: str, verbose, quiet) -> bool:
     progress(f"Verbinde mit Netzwerk '{ssid}'...", quiet)
     output = subprocess.run([
         "sudo", "nmcli",                # networkmanager command as root
@@ -85,20 +85,42 @@ def interactive(args) -> bool:
 
     password = input("Geben Sie das Passwort ein: ")
 
-    return add_connection(ssid, password, verbose, quiet)
+    if not add_connection(ssid, password, verbose, quiet):
+        return False
+
+    choice = input("Soll sich der Raspberry Pi mit {ssid} verbinden [Y/n]? ")
+
+    if choice == "" or choice.lower() == "y":
+        return connect(ssid, verbose, quiet)
+
+    return True
+
+
+def connect(ssid: str, verbose, quiet) -> bool:
+    progress(f"Der Raspberry Pi verbindet sich jetzt mit '{ssid}'. Die SSH Verbindung wird abbrechen.", quiet)
+    output = subprocess.run(["sudo", "nmcli", "c", "up", ssid], capture_output=True)
+    if output.returncode != 0:
+        error("Fehler bei der Verbindung zum Netzwerk")
+        stderr = output.stderr.decode() if output.stderr else ""
+        verbose_error(f"return code: {output.returncode}; stderr: {stderr}", verbose)
+        return False
+    return True
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="./wlan_setup.py", description="Wlan Setup für Raspberry Pi")
-    parser.add_argument("-q", "--quiet", action="store_true", help="Nur nötige Ausgaben anzeigen")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Zeigt mehr Informationen an")
-    parser.add_argument("-n", "--network", type=str, help="Der Name des Netzwerks, mit dem verbunden werden soll. Überspringt die interaktive Auswahl.")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Nur nötige Ausgaben anzeigen.")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Zeigt mehr Informationen an.")
+    parser.add_argument("-n", "--network", type=str, help="Der Name des Netzwerks, mit dem verbunden werden soll. Überspringt die interaktive Auswahl. Setzt -p voraus.")
     parser.add_argument("-p", "--password", type=str, help="Das Passwort des Netzwerks, mit dem verbunden werden soll. Setzt -n voraus.")
+    parser.add_argument("-a", "--auto-connect", action="store_true", help="Aktiviert die automatische Verbindung zu dem Netzwerk, mit dem verbunden werden soll. Setzt -n voraus.")
 
     args = parser.parse_args(sys.argv[1:])
     status = False
     if args.network is not None and args.password is not None:
         status = add_connection(args.network, args.password, args.verbose, args.quiet)
+        if status and args.auto_connect:
+            status = connect(args.network, args.verbose, args.quiet)
     else:
         status = interactive(vars(args))
 
