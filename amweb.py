@@ -63,7 +63,7 @@ class Script:
         password = input()
 
         kill_command = ["pkill", "-i", "chrome"] # TODO command auf linux testen
-        self.progress(f"Schließen aller Chrome Instanzen ({" ".join(kill_command)}).")
+        self.progress(f"Schließen aller Chrome Instanzen ({' '.join(kill_command)}).")
         output = subprocess.run(kill_command, capture_output=True)
         # 0 = success, 1 = no process found, 2 = invalid options, 3 = internal error
         if output.returncode == 2 or output.returncode == 3:
