@@ -19,10 +19,10 @@ def verbose_error(msg, verbose):
     if verbose:
         print(f"{magenta(msg)}")
 
-def add_connection(ssid, password, verbose, quiet):
+def add_connection(ssid, password, verbose, quiet) -> bool:
     progress(f"Verbinde mit Netzwerk '{ssid}'...", quiet)
     output = subprocess.run([
-        "nmcli",                        # networkmanager command
+        "sudo", "nmcli",                # networkmanager command as root
         "connection", "add",            # add a new connection
         "type", "wifi",                 # of type wifi
         "ifname", "wlan0",              # on the wlan0 interface
@@ -33,28 +33,38 @@ def add_connection(ssid, password, verbose, quiet):
     ], capture_output=True)
     if output.returncode != 0:
         error("Fehler bei der Verbindung zum Netzwerk")
-        verbose_error(f"return code: {output.returncode}; stderr: {output.stderr.decode()}", verbose)
-        return
+        stderr = output.stderr.decode() if output.stderr else ""
+        verbose_error(f"return code: {output.returncode}; stderr: {stderr}", verbose)
+        return False
 
     # should autoconnect by default, but just in case
-    output = subprocess.run(["nmcli", "c", "modify", f"'{ssid}'", "connection.autoconnect", "yes"])
+    output = subprocess.run([
+        "sudo", "nmcli",
+        "c", "modify", f"'{ssid}'",
+        "connection.autoconnect", "yes"
+    ], capture_output=True)
     if output.returncode != 0:
         error("Fehler beim Aktivieren der automatischen Verbindung")
-        verbose_error(f"return code: {output.returncode}; stderr: {output.stderr.decode()}", verbose)
-        return
+        stderr = output.stderr.decode() if output.stderr else ""
+        verbose_error(f"return code: {output.returncode}; stderr: {stderr}", verbose)
+        return False
 
     progress(f"Netzwerk '{ssid}' erfolgreich hinzugefügt!", quiet)
+    return True
 
-def interactive(args):
+def interactive(args) -> bool:
     verbose = args.get("verbose", False)
     quiet = args.get("quiet", False)
     progress("Suche nach verfügbaren Netzwerken...", quiet)
+    # use iwlist instead of nmcli to force a rescan
     output = subprocess.run(["sudo", "iwlist", "wlan0", "scan"], capture_output=True)
     if output.returncode != 0:
         error("Fehler bei der Suche nach Netzwerken")
-        verbose_error(f"return code: {output.returncode}; stderr: {output.stderr.decode()}", verbose)
-        return
-    ssids = re.findall(r"ESSID:\"(.*)\"", output.stdout.decode())
+        stderr = output.stderr.decode() if output.stderr else ""
+        verbose_error(f"return code: {output.returncode}; stderr: {stderr}", verbose)
+        return False
+    # https://stackoverflow.com/questions/7961363/removing-duplicates-in-lists/7961425#7961425
+    ssids = list(dict.fromkeys(re.findall(r"ESSID:\"(.+)\"", output.stdout.decode())))
 
     progress("Folgende Netzwerke wurden gefunden:", quiet)
     for (i, ssid) in enumerate(ssids):
@@ -67,15 +77,15 @@ def interactive(args):
     except ValueError as e:
         error("Ungültige Eingabe")
         verbose_error(e, verbose)
-        return
+        return False
     if choice < 1 or choice > len(ssids):
         error(f"Die Eingabe muss zwischen {1} und {len(ssids)} liegen")
-        return
+        return False
     ssid = ssids[choice - 1]
 
     password = input("Geben Sie das Passwort ein: ")
 
-    add_connection(ssid, password, verbose, quiet)
+    return add_connection(ssid, password, verbose, quiet)
 
 
 if __name__ == "__main__":
@@ -86,10 +96,14 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--password", type=str, help="Das Passwort des Netzwerks, mit dem verbunden werden soll. Setzt -n voraus.")
 
     args = parser.parse_args(sys.argv[1:])
+    status = False
     if args.network is not None and args.password is not None:
-        add_connection(args.network, args.password, args.verbose, args.quiet)
+        status = add_connection(args.network, args.password, args.verbose, args.quiet)
     else:
-        interactive(vars(args))
+        status = interactive(vars(args))
+
+    if not status:
+        sys.exit(1)
 
     # reboot the system:
     # this closes the ssh connection instead of just hanging
@@ -98,5 +112,5 @@ if __name__ == "__main__":
         print(f"Der Raspberry Pi wird in {i}s neugestartet...\r", end="")
         time.sleep(1)
 
-    progress("sudo reboot", args.quiet)
+    progress("\nsudo reboot", args.quiet)
     subprocess.run(["sudo", "reboot"])
