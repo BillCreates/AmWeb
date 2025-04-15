@@ -6,7 +6,7 @@ import sys
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common import NoSuchElementException, SessionNotCreatedException, InvalidArgumentException, \
-    WebDriverException, ElementClickInterceptedException
+    WebDriverException, ElementClickInterceptedException, NoSuchDriverException
 from colored import red, green, magenta
 import time
 
@@ -26,8 +26,7 @@ class Script:
             return
         user = whoami.stdout.decode().strip()
         self.verbose_progress(f"Benutzername erfolgreich abgerufen: {user}")
-        # TODO pfad auf linux testen
-        default_chrome_path = f"/home/{user}/.config/google-chrome/" # for apple: /Users/{user}/Library/Application Support/Google/Chrome
+        default_chrome_path = f"/home/{user}/.config/chromium/" # for apple: /Users/{user}/Library/Application Support/Google/Chrome
         self.options = webdriver.ChromeOptions()
         if not self.debug_chrome_path:
             self.options.add_argument(f"--user-data-dir={default_chrome_path}")
@@ -72,8 +71,9 @@ class Script:
         self.progress("Chrome Instanzen erfolgreich geschlossen.")
 
         try:
-            driver = webdriver.Chrome(options=self.options)
-        except SessionNotCreatedException as e:
+            service = webdriver.ChromeService(executable_path="/usr/bin/chromedriver")
+            driver = webdriver.Chrome(options=self.options, service=service)
+        except (SessionNotCreatedException, WebDriverException, NoSuchDriverException) as e:
             self.error("Chrome konnte nicht gestartet werden.")
             self.verbose_error(e)
             return False
