@@ -1,5 +1,6 @@
 #!.venv/bin/python3
 import argparse
+import subprocess
 import sys
 from colored import red, green, magenta
 
@@ -39,21 +40,41 @@ def run(args):
             verbose_error(e, verbose)
             return
 
-    autostart = (f"@lxpanel --profile LXDE-pi\n"
-                 f"@pcmanfm --desktop --profile LXDE-pi\n"
-                 f"\n"
-                 f"@xset s off\n"
-                 f"@xset -dpms\n"
-                 f"@xset s noblank\n"
-                 f"\n"
-                 f"@chromium-browser --kiosk {url}\n")
-
     try:
-        with open("/etc/xdg/lxsession/LXDE-pi/autostart", "a") as file:
-            file.write(autostart)
+        with open("./chromium-kiosk.service", "r") as template:
+            verbose_progress(f"./chromium-kiosk.service geöffnet", verbose)
+            t = template.read()
+            t = t.replace("<url>", url)
+
+        with open("/etc/systemd/system/chromium-kiosk.service", "w+") as file:
+            verbose_progress(f"/etc/systemd/system/chromium-kiosk.service geöffnet", verbose)
+            file.write(t)
+
+        verbose_progress("Service Configdatei hinzugefügt.", verbose)
     except Exception as e:
-        error("Configdatei konnte nicht geschrieben werden.")
+        error("Systemd-Service-Datei konnte nicht geschrieben werden.")
         verbose_error(e, verbose)
+        return
+
+    verbose_progress("Service 'chromium-kiosk' aktivieren.", verbose)
+    output = subprocess.run(["sudo", "systemctl", "enable", "chromium-kiosk"], check=True)
+    if output.returncode != 0:
+        error("Service konnte nicht aktiviert werden.")
+        verbose_error(output.stderr.decode() if output.stderr else "", verbose)
+        return
+
+    verbose_progress("Service daemon neu laden.", verbose)
+    output = subprocess.run(["sudo", "systemctl", "daemon-reload"], check=True)
+    if output.returncode != 0:
+        error("Service daemon konnte nicht neu geladen werden.")
+        verbose_error(output.stderr.decode() if output.stderr else "", verbose)
+        return
+
+    verbose_progress("Service 'chromium-kiosk' starten.", verbose)
+    output = subprocess.run(["sudo", "systemctl", "start", "chromium-kiosk"], check=True)
+    if output.returncode != 0:
+        error("Service konnte nicht gestartet werden.")
+        verbose_error(output.stderr.decode() if output.stderr else "", verbose)
         return
 
 
