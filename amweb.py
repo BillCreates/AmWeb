@@ -58,9 +58,11 @@ class Script:
         # save the url to a file, so it can be read by the kioskmode script
         with open("url.txt", "w") as file:
             file.write(url)
-        print("Geben Sie das Passwort für den Webmonitor ein: ", end="")
-        password = input()
 
+        password = input("Geben Sie das Passwort für den Webmonitor ein: ")
+        encrypt_password = input("Geben Sie das Encryption-Passwort für den Webmonitor ein: ")
+
+        # close other chrome instances, because we use the default profile
         kill_command = ["pkill", "-i", "chromium"]
         self.progress(f"Schließen aller Chrome Instanzen ({' '.join(kill_command)}).")
         output = subprocess.run(kill_command, capture_output=True)
@@ -69,6 +71,15 @@ class Script:
             self.error(f"Chrome konnte nicht geschlossen werden: pkill return code {output.returncode}.")
             return False
         self.progress("Chrome Instanzen erfolgreich geschlossen.")
+
+        # stop the chrome kiosk service, if it is running
+        self.progress("Stoppe den Chrome Kiosk Service.")
+        output = subprocess.run(["sudo", "systemctl", "stop", "chromium-kiosk"], capture_output=True)
+        # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#Process%20Exit%20Codes
+        if output.returncode != 0 and not (5 <= output.returncode <= 7):
+            self.error(f"Chrome Kiosk Service konnte nicht gestoppt werden: {output.stderr.decode().strip()}.")
+            return False
+        self.progress("Chrome Kiosk Service erfolgreich gestoppt.")
 
         try:
             service = webdriver.ChromeService(executable_path="/usr/bin/chromedriver")
@@ -94,7 +105,7 @@ class Script:
             password_input = driver.find_element(By.ID, "authPassword")
             encrypt_pw_input = driver.find_element(By.ID, "decryptPassword")
             password_input.send_keys(password)
-            encrypt_pw_input.send_keys("1234")
+            encrypt_pw_input.send_keys(encrypt_password)
         except NoSuchElementException as e:
             self.error("Passwortfelder nicht gefunden. Bitte überprüfen Sie die Url und ob Sie nicht schon eingelogged sind.")
             self.verbose_error(e)
