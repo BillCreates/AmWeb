@@ -1,5 +1,3 @@
-#!.venv/bin/python3
-
 import argparse
 import subprocess
 import sys
@@ -74,6 +72,12 @@ class Script:
 
         # stop the chrome kiosk service, if it is running
         self.progress("Stoppe den Chrome Kiosk Service.")
+        # authenticate with sudo
+        output = subprocess.run(["sudo", "-v"])
+        if output.returncode != 0:
+            self.error("Sudo Authentifizierung fehlgeschlagen.")
+            self.verbose_error(output.stderr.decode().strip())
+            return False
         output = subprocess.run(["sudo", "systemctl", "stop", "chromium-kiosk"], capture_output=True)
         # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#Process%20Exit%20Codes
         if output.returncode != 0 and not (5 <= output.returncode <= 7):

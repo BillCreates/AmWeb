@@ -1,7 +1,8 @@
-#!.venv/bin/python3
 import argparse
 import subprocess
 import sys
+import tempfile
+
 from colored import red, green, magenta
 
 
@@ -23,6 +24,7 @@ def run(args):
     verbose = args.get("verbose", False)
     url = args.get("url", None)
     no_safe = args.get("no_safe", False)
+    # user is not root at this point, so url.txt is owned by root
     if url is not None:
         verbose_progress(f"Url durch Argument übergeben: {url}", verbose)
         # url.txt updaten
@@ -40,16 +42,27 @@ def run(args):
             verbose_error(e, verbose)
             return
 
+    # authenticate with sudo
+    output = subprocess.run(["sudo", "-v"])
+    if output.returncode != 0:
+        error("Sudo Authentifizierung fehlgeschlagen.")
+        verbose_error(output.stderr.decode().strip(), verbose)
+        return False
+
     try:
         with open("./chromium-kiosk.service", "r") as template:
             verbose_progress(f"./chromium-kiosk.service geöffnet", verbose)
             t = template.read()
             t = t.replace("<url>", url)
-
-        with open("/etc/systemd/system/chromium-kiosk.service", "w+") as file:
-            verbose_progress(f"/etc/systemd/system/chromium-kiosk.service geöffnet", verbose)
-            file.write(t)
-
+        with tempfile.NamedTemporaryFile("w", delete=False) as f:
+            f.write(t)
+            tmp_path = f.name
+        verbose_progress("Schiebe Service-Datei in /etc/systemd/system", verbose)
+        output = subprocess.run(["sudo", "mv", tmp_path, "/etc/systemd/system/chromium-kiosk.service"], capture_output=True)
+        if output.returncode != 0:
+            error("Service-Datei konnte nicht verschoben werden.")
+            verbose_error(output.stderr.decode() if output.stderr else "", verbose)
+            return
         verbose_progress("Service Configdatei hinzugefügt.", verbose)
     except Exception as e:
         error("Systemd-Service-Datei konnte nicht geschrieben werden.")
@@ -57,21 +70,21 @@ def run(args):
         return
 
     verbose_progress("Service 'chromium-kiosk' aktivieren.", verbose)
-    output = subprocess.run(["sudo", "systemctl", "enable", "chromium-kiosk"], check=True)
+    output = subprocess.run(["sudo", "systemctl", "enable", "chromium-kiosk"], capture_output=True)
     if output.returncode != 0:
         error("Service konnte nicht aktiviert werden.")
         verbose_error(output.stderr.decode() if output.stderr else "", verbose)
         return
 
     verbose_progress("Service daemon neu laden.", verbose)
-    output = subprocess.run(["sudo", "systemctl", "daemon-reload"], check=True)
+    output = subprocess.run(["sudo", "systemctl", "daemon-reload"], capture_output=True)
     if output.returncode != 0:
         error("Service daemon konnte nicht neu geladen werden.")
         verbose_error(output.stderr.decode() if output.stderr else "", verbose)
         return
 
     verbose_progress("Service 'chromium-kiosk' starten.", verbose)
-    output = subprocess.run(["sudo", "systemctl", "start", "chromium-kiosk"], check=True)
+    output = subprocess.run(["sudo", "systemctl", "start", "chromium-kiosk"], capture_output=True)
     if output.returncode != 0:
         error("Service konnte nicht gestartet werden.")
         verbose_error(output.stderr.decode() if output.stderr else "", verbose)
