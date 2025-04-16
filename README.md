@@ -32,7 +32,7 @@ Dafür wird die Umgebung gescannt und das Passwort für das gewählte WLAN abgef
 - **`-h`, `--help`**: Zeigt die Hilfe an.
 - **`-q`, `--quiet`**: Unterdrückt alle Ausgaben, bis auf intearktive Eingaben und Error.
 - **`-v`, `--verbose`**: Zeigt zusätzliche Informationen bei Fehlern an (Error/Stacktraces).
-- **`-n NETWORK`, `--network NETWORk` : Gibt den Namen des WLANs an, mit dem sich der Raspberry Pi verbinden soll.
+- **`-n NETWORK`, `--network NETWORk`**: Gibt den Namen des WLANs an, mit dem sich der Raspberry Pi verbinden soll.
   Wenn kein Netzwerk angegeben wird, wird eine Liste aller verfügbaren Netzwerke angezeigt und der Benutzer kann eines auswählen.
 - **`-p PASSWORD`, `--password PASSWORD`**: Gibt das Passwort für das WLAN an. Wird ignoriert, wenn `-n` nicht gegeben ist. Ist `-n` ohne `-p` gegeben, wird der Benutzer nach dem Passwort gefragt.
 - **`-a`, `--auto-connect`**: Wenn angegeben, wird der Raspberry Pi automatisch mit dem angegebenen WLAN verbunden, ohne dass der Benutzer gefragt wird.
