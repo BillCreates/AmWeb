@@ -123,5 +123,7 @@ if __name__ == "__main__":
     else:
         status = interactive(vars(args))
 
-    if not status:
+    if status:
+        sys.exit(0)
+    else:
         sys.exit(1)

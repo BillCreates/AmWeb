@@ -5,6 +5,8 @@ import tempfile
 
 from colored import red, green, magenta
 
+def progress(msg):
+    print(f"[{green('*')}] {msg}")
 
 def verbose_progress(msg, verbose):
     if verbose:
@@ -38,7 +40,7 @@ Environment=XDG_SESSION_TYPE=wayland
 WantedBy=graphical.target
 """
 
-def run(args):
+def run(args) -> bool:
     verbose = args.get("verbose", False)
     url = args.get("url", None)
     no_safe = args.get("no_safe", False)
@@ -58,7 +60,7 @@ def run(args):
         except FileNotFoundError as e:
             error("'url.txt' konnte nicht gefunden werden. Entweder erstellen Sie 'url.txt' mit der Url händisch oder führen amweb.py aus.")
             verbose_error(e, verbose)
-            return
+            return False
 
     # authenticate with sudo
     output = subprocess.run(["sudo", "-v"])
@@ -76,34 +78,36 @@ def run(args):
         if output.returncode != 0:
             error("Service-Datei konnte nicht verschoben werden.")
             verbose_error(output.stderr.decode() if output.stderr else "", verbose)
-            return
+            return False
         verbose_progress("Service Configdatei hinzugefügt.", verbose)
     except Exception as e:
         error("Systemd-Service-Datei konnte nicht geschrieben werden.")
         verbose_error(e, verbose)
-        return
+        return False
 
     verbose_progress("Service 'chromium-kiosk' aktivieren.", verbose)
     output = subprocess.run(["sudo", "systemctl", "enable", "chromium-kiosk"], capture_output=True)
     if output.returncode != 0:
         error("Service konnte nicht aktiviert werden.")
         verbose_error(output.stderr.decode() if output.stderr else "", verbose)
-        return
+        return False
 
     verbose_progress("Service daemon neu laden.", verbose)
     output = subprocess.run(["sudo", "systemctl", "daemon-reload"], capture_output=True)
     if output.returncode != 0:
         error("Service daemon konnte nicht neu geladen werden.")
         verbose_error(output.stderr.decode() if output.stderr else "", verbose)
-        return
+        return False
 
     verbose_progress("Service 'chromium-kiosk' starten.", verbose)
     output = subprocess.run(["sudo", "systemctl", "start", "chromium-kiosk"], capture_output=True)
     if output.returncode != 0:
         error("Service konnte nicht gestartet werden.")
         verbose_error(output.stderr.decode() if output.stderr else "", verbose)
-        return
+        return False
 
+    progress("Kioskmodus erfolgreich aktiviert.")
+    return True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="./kioskmodus.py", description="Kioskmodus für Raspberry Pi")
@@ -111,4 +115,7 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", action="store_true", help="Zeigt mehr Informationen an.")
     parser.add_argument("--no-safe", action="store_true", help="Wenn die Url als Argument übergeben wird, wird standardmäßig url.txt damit überschrieben. Mit dieser Option wird dies deaktiviert.")
     args = parser.parse_args(sys.argv[1:])
-    run(vars(args))
+    if run(vars(args)):
+        sys.exit(0)
+    else:
+        sys.exit(1)
