@@ -18,6 +18,26 @@ pip install -r requirements.txt                    # Installiert die benötigten
 ```
 Falls nötig, die Skripte zuerst ausführbar machen mit `chmod u+x wlan_setup.sh amweb_setup.sh`.
 
+## WLAN Setup
+Konfiguriert die WLAN-Verbindung des Raspberry Pi, damit dieser sich automatisch mit dem gewünschten WLAN verbindet.
+Dafür wird die Umgebung gescannt und das Passwort für das gewählte WLAN abgefragt.
+
+### Benutzung
+
+```bash
+./wlan_setup.py [-h] [-q] [-v] [-n NETWORK] [-p PASSWORD] [-a]
+```
+
+#### Optionen
+- **`-h`, `--help`**: Zeigt die Hilfe an.
+- **`-q`, `--quiet`**: Unterdrückt alle Ausgaben, bis auf intearktive Eingaben und Error.
+- **`-v`, `--verbose`**: Zeigt zusätzliche Informationen bei Fehlern an (Error/Stacktraces).
+- **`-n NETWORK`, `--network NETWORk` : Gibt den Namen des WLANs an, mit dem sich der Raspberry Pi verbinden soll.
+  Wenn kein Netzwerk angegeben wird, wird eine Liste aller verfügbaren Netzwerke angezeigt und der Benutzer kann eines auswählen.
+- **`-p PASSWORD`, `--password PASSWORD`**: Gibt das Passwort für das WLAN an. Wird ignoriert, wenn `-n` nicht gegeben ist. Ist `-n` ohne `-p` gegeben, wird der Benutzer nach dem Passwort gefragt.
+- **`-a`, `--auto-connect`**: Wenn angegeben, wird der Raspberry Pi automatisch mit dem angegebenen WLAN verbunden, ohne dass der Benutzer gefragt wird.
+  Wird ignoriert, wenn `-n` nicht gegeben ist.
+
 ## AMweb Login
 Startet einen Chromebrowser mit dem **Default**-Profil (damit der Local Storage bestehen bleibt) im headless-mode und navigiert auf die angegebene AMweb-Seite.  
 Dort wird sich mit dem angegebenen Passwort angemeldet.
@@ -30,7 +50,7 @@ Zusätzlich wird die eingegebene Url in der Datei `url.txt` gespeichert, die dan
 ### Benutzung
 
 ```bash
- ./amweb.py [-h] [-v] [-q] [--no-headless] [--debug-chrome-path] [--wait-time WAIT_TIME]
+./amweb.py [-h] [-v] [-q] [--no-headless] [--debug-chrome-path] [--wait-time WAIT_TIME]
 ```
 
 #### Optionen
@@ -56,7 +76,7 @@ Dafür wird die Url aus der Datei `url.txt` eingelesen. Die Url kann auch als Ar
 ### Benutzung
 
 ```bash
- ./kioskmodus.py [-h] [-v] [--no-safe] [url]
+./kioskmodus.py [-h] [-v] [--no-safe] [url]
 ```
 
 #### Optionen
