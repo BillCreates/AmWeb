@@ -116,8 +116,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args(sys.argv[1:])
     status = False
-    if args.network is not None and args.password is not None:
-        status = add_connection(args.network, args.password, args.verbose, args.quiet)
+    if args.network is not None:
+        pw = args.password
+        if pw is None:
+            pw = input(f"Bitte das Passwort für '{args.network}' eingeben: ")
+        status = add_connection(args.network, pw, args.verbose, args.quiet)
         if status and args.auto_connect:
             status = connect(args.network, args.verbose, args.quiet)
     else:
