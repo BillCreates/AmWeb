@@ -4,16 +4,19 @@ Scripte um den Alarmmonitor automatisch auf dem Raspberry Pi zu einzurichten und
 ## Installation
 ```bash
 git clone https://github.com/BillCreates/AmWeb.git # Klont das Repository
+cd AmWeb                                           # In das Projektverzeichnis wechseln
 python -m venv .venv                               # Erstellt ein virtuelles Environment in .venv/
 source .venv/bin/activate                          # Aktiviert das virtuelle Environment
+pip install --upgrade pip                          # Aktualisiert pip auf die neueste Version
 pip install -r requirements.txt                    # Installiert die benötigten Python-Module
-chmod u+x amweb_setup.sh                           # Macht das Setup-Script ausführbar
 ```
 
 ## Benutzung
 ```bash
+./wlan_setup.sh
 ./amweb_setup.sh
 ```
+Falls nötig, die Skripte zuerst ausführbar machen mit `chmod u+x wlan_setup.sh amweb_setup.sh`.
 
 ## AMweb Login
 Startet einen Chromebrowser mit dem **Default**-Profil (damit der Local Storage bestehen bleibt) im headless-mode und navigiert auf die angegebene AMweb-Seite.  
