@@ -20,6 +20,24 @@ def verbose_error(msg, verbose):
         print(f"{magenta(msg)}")
 
 
+def create_service(url: str) -> str:
+    return f"""
+[Unit]
+Description=Chromium Kiosk Mode for AmWeb
+After=graphical.target
+
+[Service]
+ExecStart=/usr/bin/chromium --ozone-platform=wayland --kiosk {url}
+Restart=always
+User=fw_admin
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=WAYLAND_DISPLAY=wayland-0
+Environment=XDG_SESSION_TYPE=wayland
+
+[Install]
+WantedBy=graphical.target
+"""
+
 def run(args):
     verbose = args.get("verbose", False)
     url = args.get("url", None)
@@ -50,14 +68,10 @@ def run(args):
         return False
 
     try:
-        with open("./chromium-kiosk.service", "r") as template:
-            verbose_progress(f"./chromium-kiosk.service geöffnet", verbose)
-            t = template.read()
-            t = t.replace("<url>", url)
         with tempfile.NamedTemporaryFile("w", delete=False) as f:
-            f.write(t)
+            f.write(create_service(url))
             tmp_path = f.name
-        verbose_progress("Schiebe Service-Datei in /etc/systemd/system", verbose)
+        verbose_progress("Schiebe temporäre Datei in /etc/systemd/system", verbose)
         output = subprocess.run(["sudo", "mv", tmp_path, "/etc/systemd/system/chromium-kiosk.service"], capture_output=True)
         if output.returncode != 0:
             error("Service-Datei konnte nicht verschoben werden.")
