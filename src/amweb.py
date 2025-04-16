@@ -59,6 +59,9 @@ class Script:
 
         password = input("Geben Sie das Passwort für den Webmonitor ein: ")
         encrypt_password = input("Geben Sie das Encryption-Passwort für den Webmonitor ein: ")
+        if encrypt_password == "":
+            self.error("Encryption-Passwort darf nicht leer sein.")
+            return False
 
         # close other chrome instances, because we use the default profile
         kill_command = ["pkill", "-i", "chromium"]
