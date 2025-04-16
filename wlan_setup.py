@@ -2,7 +2,6 @@ import subprocess
 import sys
 import re
 import argparse
-import time
 
 from colored import red, green, magenta
 
@@ -88,7 +87,7 @@ def interactive(args) -> bool:
     if not add_connection(ssid, password, verbose, quiet):
         return False
 
-    choice = input("Soll sich der Raspberry Pi mit {ssid} verbinden [Y/n]? ")
+    choice = input(f"Soll sich der Raspberry Pi mit {ssid} verbinden [Y/n]? ")
 
     if choice == "" or choice.lower() == "y":
         return connect(ssid, verbose, quiet)
