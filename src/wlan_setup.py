@@ -20,13 +20,25 @@ def verbose_error(msg, verbose):
 
 def add_connection(ssid: str, password: str, verbose, quiet) -> bool:
     progress(f"Verbinde mit Netzwerk '{ssid}'...", quiet)
+
+    # remove existing connections of same name
+    output = subprocess.run(["nmcli", "c", "show"], capture_output=True)
+    for line in output.stdout.decode().splitlines():
+        if line.startswith(ssid):
+            output = subprocess.run(["sudo", "nmcli", "c", "del", ssid])
+            if output.returncode != 0:
+                error("Fehler beim Entfernen von Netzwerken mit gleichem Namen")
+                stderr = output.stderr.decode() if output.stderr else ""
+                verbose_error(f"return code: {output.returncode}; stderr: {stderr}", verbose)
+                return False
+
     output = subprocess.run([
         "sudo", "nmcli",                # networkmanager command as root
         "connection", "add",            # add a new connection
         "type", "wifi",                 # of type wifi
         "ifname", "wlan0",              # on the wlan0 interface
-        "con-name", ssid,          # with the name of the ssid
-        "ssid", ssid,              # and the ssid
+        "con-name", ssid,               # with the name of the ssid
+        "ssid", ssid,                   # and the ssid
         "wifi-sec.key-mgmt", "wpa-psk", # with wpa-psk key management
         "wifi-sec.psk", password        # and the password
     ], capture_output=True)
