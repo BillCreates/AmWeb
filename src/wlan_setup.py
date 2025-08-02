@@ -25,7 +25,7 @@ def add_connection(ssid: str, password: str, verbose, quiet) -> bool:
     output = subprocess.run(["nmcli", "c", "show"], capture_output=True)
     for line in output.stdout.decode().splitlines():
         if line.startswith(ssid):
-            output = subprocess.run(["sudo", "nmcli", "c", "del", ssid])
+            output = subprocess.run(["sudo", "nmcli", "c", "del", ssid], capture_output=True)
             if output.returncode != 0:
                 error("Fehler beim Entfernen von Netzwerken mit gleichem Namen")
                 stderr = output.stderr.decode() if output.stderr else ""
