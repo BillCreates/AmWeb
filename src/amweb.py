@@ -88,6 +88,12 @@ class Script:
             return False
         self.progress("Chrome Kiosk Service erfolgreich gestoppt.")
 
+        self.verbose_progress("Löschen von Local Storage")
+        output = subprocess.run(["rm", "-r", "home/fw_admin/.config/chromium/Default/Local Storage/leveldb"], capture_output=True)
+        if output.returncode != 0:
+            self.error(f"Konnte den Chrome Local Storage nicht löschen: {output.returncode}")
+            return False
+
         try:
             service = webdriver.ChromeService(executable_path="/usr/bin/chromedriver")
             driver = webdriver.Chrome(options=self.options, service=service)
