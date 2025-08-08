@@ -94,7 +94,7 @@ class Script:
 
         self.verbose_progress("Löschen von Local Storage")
         output = subprocess.run(["rm", "-r", "home/fw_admin/.config/chromium/Default/Local Storage/leveldb"], capture_output=True)
-        if output.returncode != 0:
+        if output.returncode != 0 and output.returncode != 1:
             self.error(f"Konnte den Chrome Local Storage nicht löschen: {output.returncode}")
             self.verbose_error(f"Output: {output.stdout.decode()}\n{output.stderr.decode()}")
             return False
