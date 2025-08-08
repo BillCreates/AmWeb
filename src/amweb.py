@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common import NoSuchElementException, SessionNotCreatedException, InvalidArgumentException, \
     WebDriverException, ElementClickInterceptedException, NoSuchDriverException
-from colored import red, green, magenta
+from colored import red, green, yellow, magenta
 import time
 
 
@@ -49,6 +49,10 @@ class Script:
     def progress(self, msg):
         if not self.quiet or self.verbose:
             print(f"[{green('*')}] {msg}")
+    
+    def warn(self, msg):
+        if not self.quiet or self.verbose:
+            print(f"[{yellow('*')}] {msg}")
 
     def run(self) -> bool:
         print("Tragen Sie die Url zum Webmonitor ein: ", end="")
@@ -116,14 +120,23 @@ class Script:
 
         try:
             password_input = driver.find_element(By.ID, "authPassword")
-            encrypt_pw_input = driver.find_element(By.ID, "decryptPassword")
             password_input.send_keys(password)
-            encrypt_pw_input.send_keys(encrypt_password)
         except NoSuchElementException as e:
-            self.error("Passwortfelder nicht gefunden. Bitte überprüfen Sie die Url und ob Sie nicht schon eingelogged sind.")
+            self.error("Passwortfeld nicht gefunden. Bitte überprüfen Sie die Url und ob Sie nicht schon eingelogged sind.")
             self.verbose_error(e)
             driver.quit()
             return False
+        except Exception as e:
+            self.error("Unbekannter Fehler.")
+            self.verbose_error(e)
+            driver.quit()
+            return False
+        
+        try:
+            encrypt_pw_input = driver.find_element(By.ID, "decryptPassword")
+            encrypt_pw_input.send_keys(encrypt_password)
+        except NoSuchElementException as e:
+            self.warn("Encryptionpasswortfeld nicht gefunden.")
         except Exception as e:
             self.error("Unbekannter Fehler.")
             self.verbose_error(e)

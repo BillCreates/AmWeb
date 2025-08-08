@@ -7,5 +7,8 @@ def red(text):
 def green(text):
     return colored(text, 32)
 
+def yellow(text):
+    return colored(text, 33)
+
 def magenta(text):
     return colored(text, 35)
