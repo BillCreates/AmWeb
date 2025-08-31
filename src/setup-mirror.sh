@@ -9,7 +9,7 @@ USER="fw_admin"
 # Prüfen, ob xrandr installiert ist
 if ! command -v xrandr &> /dev/null
 then
-    echo "xrandr ist nicht installiert. Bitte zuerst installieren."
+    echo "xrandr is not installed"
     exit 1
 fi
 
@@ -17,15 +17,15 @@ fi
 OUTPUTS=($(DISPLAY=:0 xrandr --query | grep " connected" | awk '{print $1}'))
 
 if [ ${#OUTPUTS[@]} -lt 2 ]; then
-    echo "Es wurden weniger als zwei HDMI-Outputs gefunden!"
+    echo "Only one display was found"
     exit 1
 fi
 
 PRIMARY="${OUTPUTS[0]}"
 SECONDARY="${OUTPUTS[1]}"
 
-echo "Primärer Monitor: $PRIMARY"
-echo "Sekundärer Monitor (wird gespiegelt): $SECONDARY"
+echo "Primary monitor: $PRIMARY"
+echo "Secondary Monitor (getting mirrored): $SECONDARY"
 
 # Service-Datei Pfad
 SERVICE_PATH="/etc/systemd/system/${SERVICE_NAME}.service"
@@ -33,7 +33,7 @@ SERVICE_PATH="/etc/systemd/system/${SERVICE_NAME}.service"
 # Service erstellen
 sudo tee $SERVICE_PATH > /dev/null <<EOL
 [Unit]
-Description=Spiegelung der Kiosk-Monitore
+Description=Mirroring display for kiosk
 After=graphical.target
 
 [Service]
@@ -52,5 +52,5 @@ sudo systemctl daemon-reload
 sudo systemctl enable $SERVICE_NAME
 sudo systemctl start $SERVICE_NAME
 
-echo "Service '$SERVICE_NAME' wurde erstellt, aktiviert und gestartet."
-echo "Der zweite Monitor $SECONDARY wird jetzt gespiegelt."
+echo "Service '$SERVICE_NAME' is created, activated and started."
+echo "Secondary monitor: $SECONDARY is now mirrored"

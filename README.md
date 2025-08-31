@@ -83,3 +83,12 @@ Dafür wird die Url aus der Datei `url.txt` eingelesen. Die Url kann auch als Ar
 - **`-h`, `--help`**: Zeigt die Hilfe an.
 - **`-v`, `--verbose`**: Zeigt zusätzliche Informationen bei Fehlern an (Error/Stacktraces).
 - **`--no-safe`**: Wenn die Url als Argument übergeben wird, wird standardmäßig `url.txt` damit überschrieben. Mit dieser Option wird dies deaktiviert.
+
+## Kiosk Spiegelung
+Richtet eine Config-Dateien auf dem Raspberry Pi ein, womit bei jedem Start des Raspberry Pi beide HDMI Ausgänge gespeigelt werden.
+
+### Benutzung
+
+```bash
+./setup-mirror.sh
+```
